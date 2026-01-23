@@ -1,0 +1,48 @@
+{
+  "users": [
+    {
+      "id": "google-1769018348085",
+      "uid": "google-1769018348085",
+      "email": "google-1769018348085@example.com",
+      "displayName": "Google User",
+      "photoURL": "https://via.placeholder.com/150",
+      "createdAt": "2026-01-21T17:59:08.085Z",
+      "cart": []
+    },
+    {
+      "id": "cca2159b-968d-49b4-9384-d6e5b4cd53fe",
+      "uid": "9057481e-980b-4715-b286-f532f1dae627",
+      "email": "veerababu525@gmail.com",
+      "password": "Veeru@525",
+      "displayName": "Jujjavarapu Veerababu",
+      "photoURL": null,
+      "createdAt": "2026-01-21T18:00:59.121Z",
+      "cart": [
+        {
+          "id": 1,
+          "name": "Premium Cotton T-Shirt",
+          "category": "Fashion",
+          "price": 499,
+          "originalPrice": 999,
+          "rating": 4.5,
+          "reviews": 234,
+          "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop",
+          "description": "Comfortable premium cotton t-shirt with modern fit",
+          "quantity": 2
+        },
+        {
+          "id": 2,
+          "name": "Denim Jacket",
+          "category": "Fashion",
+          "price": 1299,
+          "originalPrice": 2499,
+          "rating": 4.7,
+          "reviews": 189,
+          "image": "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop",
+          "description": "Classic denim jacket with vintage wash",
+          "quantity": 1
+        }
+      ]
+    }
+  ]
+}
