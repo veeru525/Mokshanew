@@ -1,10 +1,13 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
+    const { currentUser, setError } = useAuth();
+    const navigate = useNavigate();
 
     const renderStars = (rating) => {
         const stars = [];
@@ -28,6 +31,11 @@ const ProductCard = ({ product }) => {
 
     const handleAddToCart = (e) => {
         e.preventDefault();
+        if (!currentUser) {
+            setError("Please login to add items to cart.");
+            navigate('/login');
+            return;
+        }
         addToCart(product);
     };
 
