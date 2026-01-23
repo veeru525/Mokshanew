@@ -47,11 +47,9 @@ A modern, feature-rich e-commerce web application built with React, Firebase, an
 - Node.js (v16 or higher)
 - npm or yarn
 
-### Installation & Running (Demo Mode)
+### Installation & Setup
 
-The application uses **JSON Server** as a mock database.
-
-1. **Clone or navigate to the project directory**
+1. **Clone the repository**
    ```bash
    cd Moksha
    ```
@@ -61,34 +59,46 @@ The application uses **JSON Server** as a mock database.
    npm install
    ```
 
-3. **Start the Database Server** (Terminal 1)
-   ```bash
-   npm run sql-server
-   ```
-   This runs the SQLite backend at `http://localhost:3001`.
-   
-   *Note: This creates a real SQLite database file named `server/database.sqlite`.*
+3. **Configure Firebase (Required for Sync)**
+   - Go to [Firebase Console](https://console.firebase.google.com/) -> Create Project.
+   - Enable **Authentication** (Email/Google).
+   - Enable **Firestore Database** (Create Database > Start in Test Mode).
+   - Go to Project Settings -> General -> Copy SDK Config.
+   - Open `.env` file in your project and paste the values:
+     ```env
+     VITE_FIREBASE_API_KEY=your_key
+     VITE_FIREBASE_AUTH_DOMAIN=your_domain
+     ...
+     ```
 
-4. **Start the Application** (Terminal 2)
+4. **Run Locally**
    ```bash
    npm run dev
    ```
-   Navigate to `http://localhost:5173`.
-
-   **Demo Credentials:**
-   - Signup with any email to create a new user in the database.
-   - Login with created credentials.
-   - Data is saved to `db.json` file.
 
 ---
 
-### Production Setup (Optional)
+## 🚀 Deployment (Free Hosting)
 
-To use real Firebase services instead of the demo mock services:
+The easiest way to host this app for free is **Vercel** or **Netlify**.
 
-1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-2. Follow the setup steps in `.env.example`
-3. Update `src/context/AuthContext.jsx` and `src/context/CartContext.jsx` to rely on Firebase imports.
+1. **Push your code to GitHub**.
+2. **Go to [Vercel](https://vercel.com/)** and "Add New Project".
+3. **Import** your GitHub repo.
+4. **Environment Variables**:
+   Copy all the contents of your `.env` file into the "Environment Variables" section in Vercel.
+5. **Deploy!** 🚀
+
+Your app will be live and your specific Firebase database will persist all user/cart data forever.
+
+---
+
+### Alternative: Mock Database / SQLite (Dev Only)
+
+If you ignore Firebase setup, the app will run in read-only mode or you can run local servers:
+- **JSON Server**: `npm run server`
+- **SQLite Server**: `npm run sql-server`
+See older documentation for details.
 
 ## Project Structure
 

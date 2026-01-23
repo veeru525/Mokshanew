@@ -1,8 +1,9 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase.config';
 
 const CartContext = createContext({});
-const API_URL = 'http://localhost:3001/api';
 
 export const useCart = () => {
     const context = useContext(CartContext);
@@ -17,48 +18,56 @@ export const CartProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const { currentUser } = useAuth();
 
-    // Load cart from SQLite Backend
+    // Load cart
     useEffect(() => {
-        const loadCart = async () => {
-            if (currentUser) {
-                setLoading(true);
-                try {
-                    const response = await fetch(`${API_URL}/cart/${currentUser.id}`);
-                    if (response.ok) {
-                        const items = await response.json();
-                        setCartItems(items || []);
-                    }
-                } catch (error) {
-                    console.error('Error loading cart:', error);
-                } finally {
-                    setLoading(false);
-                }
-            } else {
-                // Fallback for guest
-                const localCart = localStorage.getItem('cart_guest');
-                if (localCart) setCartItems(JSON.parse(localCart));
-                else setCartItems([]);
-            }
-        };
+        let unsubscribe;
 
-        loadCart();
+        if (currentUser) {
+            setLoading(true);
+            // Real-time listener for Firestore
+            const userDocRef = doc(db, 'users', currentUser.uid);
+
+            unsubscribe = onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const userData = docSnap.data();
+                    setCartItems(userData.cart || []);
+                }
+                setLoading(false);
+            }, (error) => {
+                console.error("Cart subscription error:", error);
+                setLoading(false);
+            });
+
+        } else {
+            // Guest mode: LocalStorage
+            const localCart = localStorage.getItem('cart_guest');
+            if (localCart) {
+                setCartItems(JSON.parse(localCart));
+            } else {
+                setCartItems([]);
+            }
+            setLoading(false);
+        }
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
     }, [currentUser]);
 
-    // Save cart to SQLite Backend
-    const saveCart = async (items) => {
+    // Save cart helper
+    const saveCart = async (newCart) => {
         if (currentUser) {
             try {
-                // POST request to sync cart
-                await fetch(`${API_URL}/cart/${currentUser.id}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cart: items })
-                });
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                // Use setDoc with merge: true to create the document if it doesn't exist
+                await setDoc(userDocRef, {
+                    cart: newCart
+                }, { merge: true });
             } catch (error) {
-                console.error('Error saving cart:', error);
+                console.error('Error saving cart to Firestore:', error);
             }
         } else {
-            localStorage.setItem('cart_guest', JSON.stringify(items));
+            localStorage.setItem('cart_guest', JSON.stringify(newCart));
         }
     };
 
@@ -76,6 +85,9 @@ export const CartProvider = ({ children }) => {
             newCart = [...cartItems, { ...product, quantity: 1 }];
         }
 
+        // Optimistic UI update (optional, but since we have onSnapshot, 
+        // passing it to saveCart is better or we just set it locally and wait for sync?
+        // Let's set it locally to avoid lag, onSnapshot will confirm it.)
         setCartItems(newCart);
         await saveCart(newCart);
     };

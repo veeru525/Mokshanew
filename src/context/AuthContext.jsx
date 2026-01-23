@@ -1,8 +1,16 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup
+} from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase.config';
 
 const AuthContext = createContext({});
-
-const API_URL = 'http://localhost:3001/api';
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
@@ -17,39 +25,45 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Initialize auth state from localStorage (only for persistence across refreshes)
     useEffect(() => {
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedUser) {
-            setCurrentUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Fetch additional user details from Firestore if needed
+                // For now, we trust the auth user object, but we could sync custom fields here.
+                setCurrentUser(user);
+            } else {
+                setCurrentUser(null);
+            }
+            setLoading(false);
+        });
+
+        return unsubscribe;
     }, []);
 
     const signup = async (email, password, displayName) => {
         try {
             setError(null);
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-            const response = await fetch(`${API_URL}/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, displayName })
+            // Create user document in Firestore
+            await setDoc(doc(db, 'users', user.uid), {
+                uid: user.uid,
+                email: user.email,
+                displayName: displayName,
+                createdAt: new Date().toISOString(),
+                cart: [] // Initialize empty cart
             });
 
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.error || 'Failed to create account');
-            }
-
-            const newUser = await response.json();
-
-            localStorage.setItem('currentUser', JSON.stringify(newUser));
-            setCurrentUser(newUser);
-
-            return newUser;
+            return user;
         } catch (err) {
-            console.error("Signup error:", err);
-            setError(err.message === 'Failed to fetch' ? 'Backend server not running (npm run sql-server)' : err.message);
+            console.error("Signup Error:", err);
+            // Improve error messages
+            if (err.code === 'auth/email-already-in-use') {
+                setError('This email is already in use.');
+            } else {
+                setError(err.message);
+            }
             throw err;
         }
     };
@@ -57,27 +71,17 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             setError(null);
-
-            const response = await fetch(`${API_URL}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.error || 'Invalid email or password');
-            }
-
-            const user = await response.json();
-
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            setCurrentUser(user);
-
-            return user;
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            return userCredential.user;
         } catch (err) {
-            console.error("Login error:", err);
-            setError(err.message === 'Failed to fetch' ? 'Backend server not running (npm run sql-server)' : err.message);
+            console.error("Login Error:", err);
+            if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+                setError('Invalid email or password.');
+            } else if (err.code === 'auth/invalid-credential') {
+                setError('Invalid credentials.');
+            } else {
+                setError(err.message);
+            }
             throw err;
         }
     };
@@ -85,30 +89,28 @@ export const AuthProvider = ({ children }) => {
     const signInWithGoogle = async () => {
         try {
             setError(null);
-            // Simulate Google Auth
-            const mockGoogleUser = {
-                uid: 'google-' + Date.now(),
-                email: `google-${Date.now()}@example.com`,
-                displayName: 'Google User',
-                photoURL: 'https://via.placeholder.com/150'
-            };
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
 
-            const response = await fetch(`${API_URL}/google-login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(mockGoogleUser)
-            });
+            // Check if user exists in Firestore, if not create them
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef);
 
-            if (!response.ok) {
-                throw new Error('Google sign in failed');
+            if (!userDoc.exists()) {
+                await setDoc(userDocRef, {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    createdAt: new Date().toISOString(),
+                    cart: []
+                });
             }
 
-            const savedUser = await response.json();
-            localStorage.setItem('currentUser', JSON.stringify(savedUser));
-            setCurrentUser(savedUser);
-            return savedUser;
+            return user;
         } catch (err) {
-            setError('Google Sign-In failed: ' + err.message);
+            console.error("Google Sign-in Error:", err);
+            setError(err.message);
             throw err;
         }
     };
@@ -116,8 +118,7 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             setError(null);
-            localStorage.removeItem('currentUser');
-            setCurrentUser(null);
+            await signOut(auth);
         } catch (err) {
             setError(err.message);
             throw err;
@@ -125,8 +126,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     const resetPassword = async (email) => {
-        // Just a mock function for now as we don't have email service
-        console.log(`Password reset requested for ${email}`);
+        // Implement firebase sendPasswordResetEmail if needed
+        console.log("Reset password for", email);
     };
 
     const value = {
