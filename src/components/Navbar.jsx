@@ -57,23 +57,33 @@ const Navbar = () => {
                         <div className="user-menu-wrapper">
                             <button
                                 className="user-button"
-                                onClick={() => setShowUserMenu(!showUserMenu)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowUserMenu(!showUserMenu);
+                                }}
                             >
                                 <FaUser />
                                 <span className="user-name">
-                                    {currentUser.displayName || currentUser.email?.split('@')[0]}
+                                    {currentUser.displayName || 'User'}
                                 </span>
                             </button>
 
                             {showUserMenu && (
-                                <div className="user-dropdown">
-                                    <div className="user-info">
-                                        <p className="user-email">{currentUser.email}</p>
+                                <>
+                                    <div className="user-menu-overlay" onClick={() => setShowUserMenu(false)}></div>
+                                    <div className="user-dropdown glass" onClick={(e) => e.stopPropagation()}>
+                                        <div className="user-info">
+                                            <p className="user-name-display">{currentUser.displayName || 'Professional User'}</p>
+                                            <p className="user-email">{currentUser.email}</p>
+                                        </div>
+                                        <div className="user-dropdown-links">
+                                            <Link to="/cart" onClick={() => setShowUserMenu(false)}>My Cart</Link>
+                                        </div>
+                                        <button className="logout-btn" onClick={handleLogout}>
+                                            Logout
+                                        </button>
                                     </div>
-                                    <button className="logout-btn" onClick={handleLogout}>
-                                        Logout
-                                    </button>
-                                </div>
+                                </>
                             )}
                         </div>
                     ) : (

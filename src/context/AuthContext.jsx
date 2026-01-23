@@ -4,10 +4,11 @@ import {
     signInWithEmailAndPassword,
     signOut,
     onAuthStateChanged,
+    updateProfile,
     GoogleAuthProvider,
     signInWithPopup
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase.config';
 
 const AuthContext = createContext({});
@@ -46,13 +47,26 @@ export const AuthProvider = ({ children }) => {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
+            // Update Auth profile
+            await updateProfile(user, { displayName: displayName });
+
             // Create user document in Firestore
             await setDoc(doc(db, 'users', user.uid), {
                 uid: user.uid,
                 email: user.email,
                 displayName: displayName,
                 createdAt: new Date().toISOString(),
-                cart: [] // Initialize empty cart
+                cart: [], // Initialize empty cart
+                phoneNumber: '',
+                address: {
+                    fullName: '',
+                    mobile: '',
+                    flatNo: '',
+                    area: '',
+                    city: '',
+                    state: '',
+                    pincode: ''
+                }
             });
 
             return user;
@@ -103,7 +117,17 @@ export const AuthProvider = ({ children }) => {
                     email: user.email,
                     displayName: user.displayName,
                     createdAt: new Date().toISOString(),
-                    cart: []
+                    cart: [],
+                    phoneNumber: '',
+                    address: {
+                        fullName: user.displayName || '',
+                        mobile: '',
+                        flatNo: '',
+                        area: '',
+                        city: '',
+                        state: '',
+                        pincode: ''
+                    }
                 });
             }
 
@@ -130,6 +154,17 @@ export const AuthProvider = ({ children }) => {
         console.log("Reset password for", email);
     };
 
+    const updateUserData = async (data) => {
+        if (!currentUser) return;
+        try {
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            await updateDoc(userDocRef, data);
+        } catch (err) {
+            console.error("Error updating user data:", err);
+            throw err;
+        }
+    };
+
     const value = {
         currentUser,
         signup,
@@ -137,6 +172,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         signInWithGoogle,
         resetPassword,
+        updateUserData,
         error,
         setError
     };

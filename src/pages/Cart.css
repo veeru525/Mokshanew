@@ -50,9 +50,15 @@
 /* Cart Content */
 .cart-content {
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr 450px;
     gap: var(--spacing-2xl);
     align-items: start;
+}
+
+.cart-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xl);
 }
 
 /* Cart Items */
@@ -307,4 +313,4 @@
         padding-top: var(--spacing-sm);
         border-top: 1px solid var(--color-border);
     }
-}
+}\n/* Address Section Styles */\n.address-section {\n    padding: var(--spacing-xl);\n    border-radius: var(--radius-xl);\n}\n\n.section-title {\n    display: flex;\n    align-items: center;\n    gap: var(--spacing-sm);\n    font-size: var(--font-size-2xl);\n    margin: 0 0 var(--spacing-xs) 0;\n}\n\n.section-subtitle {\n    color: var(--color-text-muted);\n    font-size: var(--font-size-sm);\n    margin-bottom: var(--spacing-xl);\n}\n\n.address-form {\n    display: flex;\n    flex-direction: column;\n    gap: var(--spacing-md);\n}\n\n.form-row {\n    display: grid;\n    grid-template-columns: 1fr 1fr;\n    gap: var(--spacing-md);\n}\n\n.form-group {\n    display: flex;\n    flex-direction: column;\n    gap: var(--spacing-xs);\n}\n\n.form-group label {\n    display: flex;\n    align-items: center;\n    gap: var(--spacing-xs);\n    font-size: var(--font-size-sm);\n    font-weight: 500;\n    color: var(--color-text-secondary);\n}\n\n.form-group input {\n    padding: var(--spacing-sm) var(--spacing-md);\n    background: var(--color-bg-secondary);\n    border: 1px solid var(--color-border);\n    border-radius: var(--radius-md);\n    color: var(--color-text-primary);\n    font-family: var(--font-body);\n    transition: all var(--transition-fast);\n}\n\n.form-group input:focus {\n    outline: none;\n    border-color: var(--color-primary);\n    background: var(--color-bg-tertiary);\n    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);\n}\n\n.save-address-btn {\n    margin-top: var(--spacing-md);\n    align-self: flex-start;\n}\n\n.btn-success {\n    background: #10b981;\n    color: white;\n}\n\n/* Sidebar Summary List */\n.summary-list {\n    display: flex;\n    flex-direction: column;\n    gap: var(--spacing-sm);\n    margin-bottom: var(--spacing-lg);\n}\n\n.summary-item {\n    display: flex;\n    justify-content: space-between;\n    font-size: var(--font-size-sm);\n    color: var(--color-text-secondary);\n}\n\n.summary-item-name {\n    max-width: 70%;\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n\n.summary-divider {\n    border: none;\n    border-top: 1px solid var(--color-border);\n    margin: var(--spacing-md) 0;\n}\n\n@media (max-width: 768px) {\n    .form-row {\n        grid-template-columns: 1fr;\n    }\n}
