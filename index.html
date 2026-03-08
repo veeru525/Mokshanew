@@ -28,6 +28,22 @@
     rel="stylesheet" />
 
   <title>Moksha Shop - Shop Smart, Live Better</title>
+  <script>
+    window.onerror = function (msg, url, line, col, error) {
+      var div = document.createElement('div');
+      div.style.position = 'fixed';
+      div.style.top = '0';
+      div.style.left = '0';
+      div.style.width = '100%';
+      div.style.background = 'red';
+      div.style.color = 'white';
+      div.style.padding = '20px';
+      div.style.zIndex = '999999';
+      div.innerHTML = 'ERROR: ' + msg + ' at ' + url + ':' + line + ':' + col;
+      document.body.appendChild(div);
+      return false;
+    };
+  </script>
 </head>
 
 <body>

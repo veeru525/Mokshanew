@@ -70,7 +70,7 @@ const Login = () => {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="auth-form">
+                <form onSubmit={handleSubmit} className="auth-form" autoComplete="off">
                     <div className="form-group">
                         <label htmlFor="email" className="form-label">
                             <FaEnvelope /> Email
