@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { FaSearch, FaFilter, FaUpload, FaSpinner, FaPlus, FaDownload, FaTimes } from 'react-icons/fa';
-import { categories } from '../data/productsData';
+import { categories, products as staticProducts } from '../data/productsData';
 import ProductCard from '../components/ProductCard';
 import { useAuth } from '../context/AuthContext';
 import * as XLSX from 'xlsx';
@@ -34,12 +34,14 @@ const Products = () => {
             const res = await fetch('/api/products');
             if (res.ok) {
                 const data = await res.json();
-                setAllProducts(data);
+                setAllProducts(data.length > 0 ? data : staticProducts);
             } else {
-                console.error("Failed to fetch products");
+                console.warn("Failed to fetch products, using static fallback");
+                setAllProducts(staticProducts);
             }
         } catch (error) {
-            console.error("Error fetching products:", error);
+            console.warn("Error fetching products, using static fallback:", error);
+            setAllProducts(staticProducts);
         } finally {
             setLoading(false);
         }
