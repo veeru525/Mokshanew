@@ -1,10 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
+import { FaStar, FaStarHalfAlt, FaRegStar, FaTrash } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import './ProductCard.css';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, isAdmin, onDelete }) => {
     const { addToCart } = useCart();
     const { currentUser, setError } = useAuth();
     const navigate = useNavigate();
@@ -68,9 +68,21 @@ const ProductCard = ({ product }) => {
                     )}
                 </div>
 
-                <button className="btn btn-primary add-to-cart-btn" onClick={handleAddToCart}>
-                    Add to Cart
-                </button>
+                <div className="product-actions" style={{ display: 'flex', gap: '8px' }}>
+                    <button className="btn btn-primary add-to-cart-btn" onClick={handleAddToCart} style={{ flex: 1 }}>
+                        Add to Cart
+                    </button>
+                    {isAdmin && (
+                        <button
+                            className="btn btn-danger"
+                            onClick={(e) => { e.preventDefault(); onDelete(product.id); }}
+                            style={{ padding: '0 12px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            title="Delete Product"
+                        >
+                            <FaTrash />
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

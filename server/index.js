@@ -44,6 +44,19 @@ function initDb() {
             FOREIGN KEY(user_id) REFERENCES users(id)
         )`);
 
+        // Products Table
+        db.run(`CREATE TABLE IF NOT EXISTS products (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            category TEXT,
+            price REAL,
+            originalPrice REAL,
+            rating REAL,
+            reviews INTEGER,
+            image TEXT,
+            description TEXT
+        )`);
+
         console.log('Database tables initialized');
     });
 }
@@ -144,6 +157,79 @@ app.get('/api/cart/:userId', (req, res) => {
         });
 
         res.json(cartItems);
+    });
+});
+
+// Get Products
+app.get('/api/products', (req, res) => {
+    db.all(`SELECT * FROM products`, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// Bulk Insert Products
+app.post('/api/products/bulk', (req, res) => {
+    const products = req.body;
+    if (!Array.isArray(products) || products.length === 0) {
+        return res.status(400).json({ error: 'Invalid or empty products array' });
+    }
+
+    db.serialize(() => {
+        db.run("BEGIN TRANSACTION");
+        const stmt = db.prepare(`INSERT INTO products (name, category, price, originalPrice, rating, reviews, image, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`);
+
+        products.forEach(p => {
+            stmt.run(
+                p.name || 'Unknown',
+                p.category || 'Uncategorized',
+                parseFloat(p.price) || 0,
+                parseFloat(p.originalPrice) || 0,
+                parseFloat(p.rating) || 0,
+                parseInt(p.reviews) || 0,
+                p.image || '',
+                p.description || ''
+            );
+        });
+
+        stmt.finalize((err) => {
+            if (err) {
+                db.run("ROLLBACK");
+                return res.status(500).json({ error: err.message });
+            }
+            db.run("COMMIT");
+            res.json({ success: true, message: `${products.length} products inserted successfully.` });
+        });
+    });
+});
+
+// Add Single Product
+app.post('/api/products', (req, res) => {
+    const p = req.body;
+    const sql = `INSERT INTO products (name, category, price, originalPrice, rating, reviews, image, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    db.run(sql, [
+        p.name || 'Unknown',
+        p.category || 'Uncategorized',
+        parseFloat(p.price) || 0,
+        parseFloat(p.originalPrice) || 0,
+        parseFloat(p.rating) || 0,
+        parseInt(p.reviews) || 0,
+        p.image || '',
+        p.description || ''
+    ], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: this.lastID, ...p });
+    });
+});
+
+// Delete Single Product
+app.delete('/api/products/:id', (req, res) => {
+    const id = req.params.id;
+    db.run(`DELETE FROM products WHERE id = ?`, id, function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Product not found' });
+        res.json({ success: true, deletedId: id });
     });
 });
 
