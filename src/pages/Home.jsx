@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { FaShoppingBag, FaArrowRight, FaTruck, FaShieldAlt, FaUndo } from 'react-icons/fa';
 import { categories } from '../data/productsData';
 import ProductCard from '../components/ProductCard';
+import { useAuth } from '../context/AuthContext';
 import './Home.css';
 
 const Home = () => {
+    const { currentUser } = useAuth();
     const [featuredProducts, setFeaturedProducts] = useState([]);
 
     useEffect(() => {
@@ -94,24 +96,42 @@ const Home = () => {
             </section>
 
             {/* Featured Products Section */}
-            <section className="featured-section">
-                <div className="container">
-                    <div className="section-header">
-                        <h2 className="section-title">Featured Products</h2>
-                        <p className="section-subtitle">Handpicked items just for you</p>
+            {currentUser && (
+                <section className="featured-section">
+                    <div className="container">
+                        <div className="section-header">
+                            <h2 className="section-title">Featured Products</h2>
+                            <p className="section-subtitle">Handpicked items just for you</p>
+                        </div>
+                        <div className="products-grid">
+                            {featuredProducts.map((product) => (
+                                <ProductCard key={product.id} product={product} />
+                            ))}
+                        </div>
+                        <div className="section-footer">
+                            <Link to="/products" className="btn btn-primary">
+                                View All Products <FaArrowRight />
+                            </Link>
+                        </div>
                     </div>
-                    <div className="products-grid">
-                        {featuredProducts.map((product) => (
-                            <ProductCard key={product.id} product={product} />
-                        ))}
+                </section>
+            )}
+
+            {!currentUser && (
+                <section className="featured-section">
+                    <div className="container" style={{ textAlign: 'center', padding: '60px 20px' }}>
+                        <div className="section-header">
+                            <h2 className="section-title">Want to see our collection?</h2>
+                            <p className="section-subtitle">Login or signup now to browse our amazing product catalog</p>
+                        </div>
+                        <div style={{ marginTop: '30px' }}>
+                            <Link to="/login" className="btn btn-primary btn-large">
+                                Login to Browse
+                            </Link>
+                        </div>
                     </div>
-                    <div className="section-footer">
-                        <Link to="/products" className="btn btn-primary">
-                            View All Products <FaArrowRight />
-                        </Link>
-                    </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             {/* CTA Section */}
             <section className="cta-section">

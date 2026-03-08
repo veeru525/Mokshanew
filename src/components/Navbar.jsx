@@ -36,9 +36,11 @@ const Navbar = () => {
                     <Link to="/" className="nav-link">
                         <FaHome /> Home
                     </Link>
-                    <Link to="/products" className="nav-link">
-                        <FaBox /> Products
-                    </Link>
+                    {currentUser && (
+                        <Link to="/products" className="nav-link">
+                            <FaBox /> Products
+                        </Link>
+                    )}
                     <Link to="/about" className="nav-link">
                         <FaInfoCircle /> About
                     </Link>
@@ -108,9 +110,11 @@ const Navbar = () => {
                     <Link to="/" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
                         <FaHome /> Home
                     </Link>
-                    <Link to="/products" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
-                        <FaBox /> Products
-                    </Link>
+                    {currentUser && (
+                        <Link to="/products" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
+                            <FaBox /> Products
+                        </Link>
+                    )}
                     <Link to="/about" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
                         <FaInfoCircle /> About
                     </Link>
