@@ -33,17 +33,19 @@ const Navbar = () => {
 
                 {/* Desktop Navigation */}
                 <div className="navbar-links">
-                    <Link to="/" className="nav-link">
-                        <FaHome /> Home
-                    </Link>
                     {currentUser && (
-                        <Link to="/products" className="nav-link">
-                            <FaBox /> Products
-                        </Link>
+                        <>
+                            <Link to="/" className="nav-link">
+                                <FaHome /> Home
+                            </Link>
+                            <Link to="/products" className="nav-link">
+                                <FaBox /> Products
+                            </Link>
+                            <Link to="/about" className="nav-link">
+                                <FaInfoCircle /> About
+                            </Link>
+                        </>
                     )}
-                    <Link to="/about" className="nav-link">
-                        <FaInfoCircle /> About
-                    </Link>
                 </div>
 
                 {/* Right Side Actions */}
@@ -105,24 +107,17 @@ const Navbar = () => {
             </div>
 
             {/* Mobile Menu */}
-            {isMenuOpen && (
+            {isMenuOpen && currentUser && (
                 <div className="mobile-menu">
                     <Link to="/" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
                         <FaHome /> Home
                     </Link>
-                    {currentUser && (
-                        <Link to="/products" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
-                            <FaBox /> Products
-                        </Link>
-                    )}
+                    <Link to="/products" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
+                        <FaBox /> Products
+                    </Link>
                     <Link to="/about" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
                         <FaInfoCircle /> About
                     </Link>
-                    {!currentUser && (
-                        <Link to="/login" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
-                            <FaUser /> Login
-                        </Link>
-                    )}
                 </div>
             )}
         </nav>

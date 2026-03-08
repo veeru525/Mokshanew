@@ -22,7 +22,14 @@ function App() {
             <Navbar />
             <main className="main-content">
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Home />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/products"
                   element={
@@ -31,10 +38,14 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route path="/about" element={<About />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route
+                  path="/about"
+                  element={
+                    <ProtectedRoute>
+                      <About />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/cart"
                   element={
@@ -43,6 +54,9 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
               </Routes>
             </main>
             <Footer />
