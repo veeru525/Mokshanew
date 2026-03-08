@@ -4,6 +4,8 @@ import { FaShoppingBag, FaArrowRight, FaTruck, FaShieldAlt, FaUndo } from 'react
 import { categories, products as staticProducts } from '../data/productsData';
 import ProductCard from '../components/ProductCard';
 import { useAuth } from '../context/AuthContext';
+import { db } from '../firebase.config';
+import { collection, getDocs, query, limit } from 'firebase/firestore';
 import './Home.css';
 
 const Home = () => {
@@ -11,18 +13,27 @@ const Home = () => {
     const [featuredProducts, setFeaturedProducts] = useState([]);
 
     useEffect(() => {
-        fetch('/api/products')
-            .then(res => {
-                if (!res.ok) throw new Error("API not available");
-                return res.json();
-            })
-            .then(data => {
-                setFeaturedProducts(data.length > 0 ? data.slice(0, 8) : staticProducts.slice(0, 8));
-            })
-            .catch(err => {
-                console.warn("Backend not found, using static fallback:", err);
+        const fetchFeatured = async () => {
+            try {
+                const q = query(collection(db, 'products'), limit(8));
+                const querySnapshot = await getDocs(q);
+                const data = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                if (data.length > 0) {
+                    setFeaturedProducts(data);
+                } else {
+                    setFeaturedProducts(staticProducts.slice(0, 8));
+                }
+            } catch (error) {
+                console.warn("Error fetching featured products from Firestore:", error);
                 setFeaturedProducts(staticProducts.slice(0, 8));
-            });
+            }
+        };
+
+        fetchFeatured();
     }, []);
 
     return (

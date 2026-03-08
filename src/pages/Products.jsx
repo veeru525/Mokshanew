@@ -4,6 +4,17 @@ import { FaSearch, FaFilter, FaUpload, FaSpinner, FaPlus, FaDownload, FaTimes } 
 import { categories, products as staticProducts } from '../data/productsData';
 import ProductCard from '../components/ProductCard';
 import { useAuth } from '../context/AuthContext';
+import { db } from '../firebase.config';
+import {
+    collection,
+    getDocs,
+    addDoc,
+    deleteDoc,
+    doc,
+    query,
+    orderBy,
+    writeBatch
+} from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 import './Products.css';
 
@@ -31,16 +42,21 @@ const Products = () => {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const res = await fetch('/api/products');
-            if (res.ok) {
-                const data = await res.json();
-                setAllProducts(data.length > 0 ? data : staticProducts);
+            const q = query(collection(db, 'products'), orderBy('name'));
+            const querySnapshot = await getDocs(q);
+            const data = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            if (data.length > 0) {
+                setAllProducts(data);
             } else {
-                console.warn("Failed to fetch products, using static fallback");
+                console.warn("No products found in Firestore, using static fallback");
                 setAllProducts(staticProducts);
             }
         } catch (error) {
-            console.warn("Error fetching products, using static fallback:", error);
+            console.warn("Error fetching products from Firestore, using static fallback:", error);
             setAllProducts(staticProducts);
         } finally {
             setLoading(false);
@@ -53,21 +69,14 @@ const Products = () => {
 
     const handleDelete = async (id) => {
         console.log("Delete button clicked for ID:", id);
-        // Temporarily bypassing window.confirm if it's being blocked
         const confirmDelete = window.confirm("Are you sure you want to delete this product?");
-        console.log("Confirm result:", confirmDelete);
         if (!confirmDelete) return;
 
         try {
-            console.log("Sending delete request to API...");
-            const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-            if (res.ok) {
-                console.log("Delete successful");
-                fetchProducts();
-            } else {
-                alert("Failed to delete product.");
-                console.error("Delete failed");
-            }
+            console.log("Sending delete request to Firestore...");
+            await deleteDoc(doc(db, 'products', id));
+            console.log("Delete successful");
+            fetchProducts();
         } catch (error) {
             console.error("Error deleting product:", error);
             alert("Error deleting product.");
@@ -77,19 +86,18 @@ const Products = () => {
     const handleAddSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch('/api/products', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newProduct)
+            await addDoc(collection(db, 'products'), {
+                ...newProduct,
+                price: Number(newProduct.price),
+                originalPrice: Number(newProduct.originalPrice),
+                rating: Number(newProduct.rating),
+                reviews: Number(newProduct.reviews),
+                createdAt: new Date().toISOString()
             });
-            if (res.ok) {
-                alert("Product added successfully!");
-                setIsAddModalOpen(false);
-                setNewProduct({ name: '', category: 'Electronics', price: '', originalPrice: '', rating: '5', reviews: '1', image: '', description: '' });
-                fetchProducts();
-            } else {
-                alert("Failed to add product.");
-            }
+            alert("Product added successfully!");
+            setIsAddModalOpen(false);
+            setNewProduct({ name: '', category: 'Electronics', price: '', originalPrice: '', rating: '5', reviews: '1', image: '', description: '' });
+            fetchProducts();
         } catch (error) {
             console.error("Error adding product:", error);
             alert("Error adding product.");
@@ -190,19 +198,23 @@ const Products = () => {
                         return;
                     }
 
-                    const res = await fetch('/api/products/bulk', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(json)
+                    // Bulk upload to Firestore using Batched Writes
+                    const batch = writeBatch(db);
+                    json.forEach((item) => {
+                        const newDocRef = doc(collection(db, 'products'));
+                        batch.set(newDocRef, {
+                            ...item,
+                            price: Number(item.price),
+                            originalPrice: Number(item.originalPrice),
+                            rating: Number(item.rating) || 5,
+                            reviews: Number(item.reviews) || 0,
+                            createdAt: new Date().toISOString()
+                        });
                     });
 
-                    if (res.ok) {
-                        alert('Products uploaded successfully!');
-                        fetchProducts(); // Refresh the list
-                    } else {
-                        const err = await res.json();
-                        alert(`Upload failed: ${err.error || 'Unknown error'}`);
-                    }
+                    await batch.commit();
+                    alert('Products uploaded successfully!');
+                    fetchProducts(); // Refresh the list
                 } catch (parseError) {
                     console.error("Parse Error:", parseError);
                     alert('Error parsing Excel file contents. Please ensure it is a valid .xlsx or .xls file.');
