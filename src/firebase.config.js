@@ -7,12 +7,12 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "demo-api-key",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "demo-project.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "demo-project",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "demo-project.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789:web:abcdef"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDDNmel9fjIG2F_awLlXRZRIRA5H7G1Pzk",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "moksha-d9484.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "moksha-d9484",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "moksha-d9484.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "288394673081",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:288394673081:web:6263cb50c7266bb4351468"
 };
 
 // Initialize Firebase

@@ -16,8 +16,14 @@ const Signup = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const { signup, signInWithGoogle } = useAuth();
+    const { signup, signInWithGoogle, currentUser } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (currentUser) {
+            navigate('/');
+        }
+    }, [currentUser, navigate]);
 
     const handleChange = (e) => {
         setFormData({

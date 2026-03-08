@@ -7,12 +7,17 @@ import './Auth.css';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const { login, signInWithGoogle } = useAuth();
+    const { login, signInWithGoogle, currentUser } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (currentUser) {
+            navigate('/');
+        }
+    }, [currentUser, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
