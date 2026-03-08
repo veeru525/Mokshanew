@@ -1,6 +1,5 @@
 {
     "buildCommand": "npm run build",
-    "installCommand": "npm install --ignore-scripts && npm rebuild --ignore-scripts",
     "framework": "vite",
     "rewrites": [
         {
