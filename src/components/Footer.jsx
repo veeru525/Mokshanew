@@ -59,8 +59,8 @@ const Footer = () => {
                         <h4 className="footer-heading">Contact</h4>
                         <ul className="footer-links">
                             <li>Email: support@mokshashop.com</li>
-                            <li>Phone: +91 1234567890</li>
-                            <li>Address: Mumbai, India</li>
+                            <li>Phone: +91 9032524445</li>
+                            <li>Address:kakinada, AP, India</li>
                         </ul>
                     </div>
                 </div>
