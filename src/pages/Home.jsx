@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaShoppingBag, FaArrowRight, FaTruck, FaShieldAlt, FaUndo } from 'react-icons/fa';
-import { categories } from '../data/productsData';
+import { categories, products as staticProducts } from '../data/productsData';
 import ProductCard from '../components/ProductCard';
 import { useAuth } from '../context/AuthContext';
 import './Home.css';
@@ -12,11 +12,17 @@ const Home = () => {
 
     useEffect(() => {
         fetch('/api/products')
-            .then(res => res.json())
-            .then(data => {
-                setFeaturedProducts(data.slice(0, 8));
+            .then(res => {
+                if (!res.ok) throw new Error("API not available");
+                return res.json();
             })
-            .catch(err => console.error("Error fetching featured products:", err));
+            .then(data => {
+                setFeaturedProducts(data.length > 0 ? data.slice(0, 8) : staticProducts.slice(0, 8));
+            })
+            .catch(err => {
+                console.warn("Backend not found, using static fallback:", err);
+                setFeaturedProducts(staticProducts.slice(0, 8));
+            });
     }, []);
 
     return (
