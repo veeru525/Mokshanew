@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaGoogle, FaEnvelope, FaLock, FaUser, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
@@ -91,7 +91,8 @@ const Signup = () => {
 
     return (
         <div className="auth-container">
-            <div className="auth-card glass">
+            <h1 style={{ color: 'white', textAlign: 'center', position: 'absolute', top: '20px', width: '100%', zIndex: 100 }}>Signup Page</h1>
+            <div className="auth-card" style={{ background: '#1e293b', border: '1px solid #334155', opacity: 1, visibility: 'visible' }}>
                 <div className="auth-header">
                     <h1 className="auth-title gradient-text">Create Account</h1>
                     <p className="auth-subtitle">Join us and start shopping</p>

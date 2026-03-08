@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaGoogle, FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +7,7 @@ import './Auth.css';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -56,7 +57,8 @@ const Login = () => {
 
     return (
         <div className="auth-container">
-            <div className="auth-card glass">
+            <h1 style={{ color: 'white', textAlign: 'center', position: 'absolute', top: '20px', width: '100%', zIndex: 100 }}>Login Page</h1>
+            <div className="auth-card" style={{ background: '#1e293b', border: '1px solid #334155', opacity: 1, visibility: 'visible' }}>
                 <div className="auth-header">
                     <h1 className="auth-title gradient-text">Welcome Back</h1>
                     <p className="auth-subtitle">Login to continue shopping</p>
@@ -68,7 +70,7 @@ const Login = () => {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="auth-form">
+                <form onSubmit={handleSubmit} className="auth-form" autoComplete="off">
                     <div className="form-group">
                         <label htmlFor="email" className="form-label">
                             <FaEnvelope /> Email
@@ -81,6 +83,7 @@ const Login = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                            autoComplete="new-password"
                         />
                     </div>
 
@@ -97,6 +100,7 @@ const Login = () => {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
+                                autoComplete="new-password"
                             />
                             <button
                                 type="button"
